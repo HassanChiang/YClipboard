@@ -23,19 +23,20 @@ function connect() {
         stompClient.subscribe('/topic/clipboardList', function (greeting) {
             appendMsg(JSON.parse(greeting.body).content);
         });
-
-        intervalAA = setInterval(function (){
-            navigator.clipboard.readText()
-                .then(text => {
-                    if(lastContent != text) {
-                        stompClient.send("/app/receiveContent", {}, JSON.stringify({'content': text}));
-                        lastContent = text;
-                    }
-                })
-                .catch(err => {
-                    console.error('Failed to read clipboard contents: ', err);
-                });
-        }, 1000);
+        if(navigator.clipboard) {
+            intervalAA = setInterval(function () {
+                navigator.clipboard.readText()
+                    .then(text => {
+                        if (lastContent != text) {
+                            stompClient.send("/app/receiveContent", {}, JSON.stringify({'content': text}));
+                            lastContent = text;
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Failed to read clipboard contents: ', err);
+                    });
+            }, 1000);
+        }
     });
 }
 
